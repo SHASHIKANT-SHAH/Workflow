@@ -1,0 +1,33 @@
+﻿@model Application
+
+@{
+    ViewData["Title"] = "Application Details";
+}
+
+<h2>Application History</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Previous Status</th>
+            <th>New Status</th>
+            <th>Changed By</th>
+            <th>Remarks</th>
+            <th>Changed At</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var history in Model.ApplicationHistories)
+        {
+            <tr>
+                <td>@history.PreviousStatus.Name</td>
+                <td>@history.NewStatus.Name</td>
+                <td>@history.ChangedBy</td>
+                <td>@history.Remarks</td>
+                <td>@history.ChangedAt.ToString("yyyy-MM-dd HH:mm")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Index" class="btn btn-secondary">Back</a>

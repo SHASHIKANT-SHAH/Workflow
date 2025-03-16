@@ -1,0 +1,40 @@
+﻿@* @model HousingApplication
+<h2>Edit Application Status</h2>
+<form method="post" onsubmit="return confirm('Are you sure you want to update the status?');">
+    <input type="hidden" asp-for="Id" />
+    <label>Current Status:</label>
+    <p style="color: blue; font-weight: bold;">@Model.Status</p>
+    <label>New Status:</label>
+    <select name="newStatus" style="background-color: yellow;">
+        @foreach (var status in ViewBag.ValidStatuses) { <option value="@status">@status</option> }
+    </select>
+    <label>Remarks (Required):</label>
+    <textarea name="remarks" required></textarea>
+    <button type="submit">Update</button>
+</form>
+ *@
+
+ @model Application
+<h2>Edit Application Status</h2>
+<form method="post" onsubmit="return confirm('Are you sure you want to update the status?');">
+    <input type="hidden" asp-for="Id" />
+
+    <label>Current Status:</label>
+    <p style="color: blue; font-weight: bold;">@Model.Status.Name</p>
+
+    <label>New Status:</label>
+    <select name="newStatusId" asp-items="ViewBag.ValidStatuses" style="background-color: yellow;"></select>
+
+    <label>Remarks (Required):</label>
+    <textarea name="remarks" required></textarea>
+
+    <button type="submit">Update</button>
+</form>
+
+<h3>Application History</h3>
+<ul>
+    @foreach (var history in Model.ApplicationHistories)
+    {
+        <li><strong>@history.ChangedAt:</strong> @history.PreviousStatus.Name → @history.NewStatus.Name (by @history.ChangedBy) - "@history.Remarks"</li>
+    }
+</ul>

@@ -1,0 +1,9 @@
+﻿@model Application
+<h2>New Application</h2>
+<form method="post">
+    <label>Applicant Name:</label> <input asp-for="ApplicantName" required />
+    <label>Address:</label> <input asp-for="Address" required />
+    <label>Contact Number:</label> <input asp-for="ContactNumber" required />
+    <label>Loan Amount:</label> <input asp-for="LoanAmount" required type="number" step="0.01" />
+    <button type="submit">Submit</button>
+</form>

@@ -1,0 +1,32 @@
+﻿@model List<Application>
+
+@{
+    ViewData["Title"] = "Applications List";
+}
+
+<h2>Applications</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Applicant Name</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var app in Model)
+        {
+            <tr>
+                <td>@app.Id</td>
+                <td>@app.ApplicantName</td>
+                <td>@app.Status.Name</td>
+                <td>
+                    <a asp-action="EditStatus" asp-route-id="@app.Id" class="btn btn-primary">Change Status</a>
+                    <a asp-action="Details" asp-route-id="@app.Id" class="btn btn-info">View History</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

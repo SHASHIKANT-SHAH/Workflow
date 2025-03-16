@@ -1,0 +1,15 @@
+﻿@model List<Application>
+<h2>Applications</h2>
+<table>
+    <tr><th>ID</th><th>Applicant</th><th>Status</th><th>Actions</th></tr>
+    @foreach (var app in Model)
+    {
+        <tr>
+            <td>@app.Id</td>
+            <td>@app.ApplicantName</td>
+            <td>@app.Status.Name</td>
+            <td><a href="/Application/EditStatus/@app.Id">Edit Status</a></td>
+        </tr>
+    }
+</table>
+<a href="/Application/Create">Create New Application</a>
