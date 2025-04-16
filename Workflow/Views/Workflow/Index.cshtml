@@ -1,0 +1,52 @@
+﻿@model IEnumerable<LeaveRequest>
+@{
+    ViewBag.Title = "Leave Approvals";
+}
+
+<h2>Start New Leave Request</h2>
+<form asp-action="StartWorkflow" method="post">
+    <input name="employeeName" placeholder="Employee Name" required />
+    <button type="submit">Submit</button>
+</form>
+
+<hr />
+
+<h2>Leave Requests</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Employee</th>
+            <th>Manager Decision</th>
+            <th>HR Decision</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var req in Model)
+        {
+            <tr>
+                <td>@req.EmployeeName</td>
+                <td>@req.ManagerDecision</td>
+                <td>@req.HrDecision</td>
+                <td>
+                    @if (req.ManagerDecision == null)
+                    {
+                        <form asp-action="ManagerApprove" method="post" style="display:inline;">
+                            <input type="hidden" name="id" value="@req.Id" />
+                            <button name="decision" value="Approved">Manager Approve</button>
+                            <button name="decision" value="Rejected">Manager Reject</button>
+                        </form>
+                    }
+                    else if (req.HrDecision == null)
+                    {
+                        <form asp-action="HrApprove" method="post" style="display:inline;">
+                            <input type="hidden" name="id" value="@req.Id" />
+                            <button name="decision" value="Approved">HR Approve</button>
+                            <button name="decision" value="Rejected">HR Reject</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

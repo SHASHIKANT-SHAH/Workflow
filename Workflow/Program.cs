@@ -3,7 +3,10 @@ using Microsoft.Extensions.Hosting;
 using Workflow.Data;
 using Workflow.Models;
 using Workflow.Repositories;
-using Workflow.Services.Workflows;
+using Workflow.Services.LeaveRequestWorkflow.model;
+using Workflow.Services.LeaveRequestWorkflow.WorkflowDefinition;
+using Workflow.Services.LeaveRequestWorkflow.WorkflowStep;
+//using Workflow.Services.Workflows;
 using WorkflowCore.Interface;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,7 +20,8 @@ builder.Services.AddScoped<IApplicationRepository, ApplicationRepository>();
 
 builder.Services.AddWorkflow();
 // Register Your Workflow
-builder.Services.AddTransient<IWorkflow<LoanApplicationData>, LoanApprovalWorkflow>();
+builder.Services.AddTransient<NotifyStep>();
+builder.Services.AddTransient<IWorkflow<LeaveRequestData>, LeaveApprovalWorkflow>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -30,7 +34,7 @@ var host = app.Services.GetRequiredService<IWorkflowHost>();
 
 // Register workflows BEFORE starting
 // Register workflows BEFORE starting
-host.RegisterWorkflow<LoanApprovalWorkflow, LoanApplicationData>();
+host.RegisterWorkflow<LeaveApprovalWorkflow, LeaveRequestData>();
 
 // Start Workflow Engine
 host.Start();

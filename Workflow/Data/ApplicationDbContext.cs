@@ -11,6 +11,8 @@ namespace Workflow.Data
         public DbSet<ApplicationHistory> ApplicationHistories { get; set; }
         public DbSet<ApplicationStatusEntity> ApplicationStatuses { get; set; }
 
+        public DbSet<LeaveRequest> LeaveRequests { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // ApplicationStatusEntity (Status Table) Seed Data
