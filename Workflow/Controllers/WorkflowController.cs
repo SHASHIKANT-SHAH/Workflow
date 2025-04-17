@@ -77,7 +77,7 @@ namespace Workflow.Controllers
             if (workflowInstance != null)
             {
                 // Update workflow status
-                workflowInstance.Status = decision == "Approved" ? "InProgress" : "Manager Rejected";
+                workflowInstance.Status = decision == "Approved" ? "Manager Approved" : "Manager Rejected";
                 _context.SaveChanges();
             }
 
@@ -113,7 +113,7 @@ namespace Workflow.Controllers
                 }
                 else
                 {
-                    workflowInstance.Status = decision == "Approved" ? "InProgress" : "HR Rejected";
+                    workflowInstance.Status = decision == "Approved" ? "HR Approved" : "HR Rejected";
                     _context.SaveChanges();
                 }
             }
