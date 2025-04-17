@@ -11,7 +11,9 @@ namespace Workflow.Data
         public DbSet<ApplicationHistory> ApplicationHistories { get; set; }
         public DbSet<ApplicationStatusEntity> ApplicationStatuses { get; set; }
 
+        public DbSet<Status> Statuses { get; set; }
         public DbSet<LeaveRequest> LeaveRequests { get; set; }
+        public DbSet<WorkflowInstanceInfo> WorkflowInstanceInfos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -39,6 +41,28 @@ namespace Workflow.Data
                 .WithMany()
                 .HasForeignKey(h => h.NewStatusId)
                 .OnDelete(DeleteBehavior.Restrict);  // Prevent cascading delete
+
+            modelBuilder.Entity<LeaveRequest>()
+            .HasOne(lr => lr.WorkflowInstanceInfo)
+            .WithMany()  // Assuming WorkflowInstanceInfo does not need a collection of LeaveRequests
+            .HasForeignKey(lr => lr.WorkflowInstanceInfoId);
+
+            modelBuilder.Entity<LeaveRequest>()
+                .HasOne(lr => lr.ManagerDecision)
+                .WithMany(s => s.ManagerLeaveRequests)
+                .HasForeignKey(lr => lr.ManagerDecisionId);
+
+            modelBuilder.Entity<LeaveRequest>()
+                .HasOne(lr => lr.HrDecision)
+                .WithMany(s => s.HrLeaveRequests)
+                .HasForeignKey(lr => lr.HrDecisionId);
+
+            // Dummy seed data for Status table
+            modelBuilder.Entity<Status>().HasData(
+                new Status { Id = 1, Name = "Pending" },
+                new Status { Id = 2, Name = "Approved" },
+                new Status { Id = 3, Name = "Rejected" }
+            );
         }
 
 

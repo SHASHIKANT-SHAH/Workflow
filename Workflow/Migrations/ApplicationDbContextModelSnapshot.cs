@@ -176,18 +176,78 @@ namespace Workflow.Migrations
                     b.Property<string>("EmployeeName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("HrDecision")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("HrDecisionId")
+                        .HasColumnType("int");
 
-                    b.Property<string>("ManagerDecision")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("ManagerDecisionId")
+                        .HasColumnType("int");
 
-                    b.Property<string>("WorkflowId")
+                    b.Property<string>("WorkflowInstanceInfoId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HrDecisionId");
+
+                    b.HasIndex("ManagerDecisionId");
+
+                    b.HasIndex("WorkflowInstanceInfoId");
+
+                    b.ToTable("LeaveRequests");
+                });
+
+            modelBuilder.Entity("Workflow.Models.Status", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("LeaveRequests");
+                    b.ToTable("Statuses");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Pending"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Approved"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Rejected"
+                        });
+                });
+
+            modelBuilder.Entity("Workflow.Models.WorkflowInstanceInfo", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("WorkflowInstanceInfos");
                 });
 
             modelBuilder.Entity("Workflow.Models.Application", b =>
@@ -226,9 +286,37 @@ namespace Workflow.Migrations
                     b.Navigation("PreviousStatus");
                 });
 
+            modelBuilder.Entity("Workflow.Models.LeaveRequest", b =>
+                {
+                    b.HasOne("Workflow.Models.Status", "HrDecision")
+                        .WithMany("HrLeaveRequests")
+                        .HasForeignKey("HrDecisionId");
+
+                    b.HasOne("Workflow.Models.Status", "ManagerDecision")
+                        .WithMany("ManagerLeaveRequests")
+                        .HasForeignKey("ManagerDecisionId");
+
+                    b.HasOne("Workflow.Models.WorkflowInstanceInfo", "WorkflowInstanceInfo")
+                        .WithMany()
+                        .HasForeignKey("WorkflowInstanceInfoId");
+
+                    b.Navigation("HrDecision");
+
+                    b.Navigation("ManagerDecision");
+
+                    b.Navigation("WorkflowInstanceInfo");
+                });
+
             modelBuilder.Entity("Workflow.Models.Application", b =>
                 {
                     b.Navigation("ApplicationHistories");
+                });
+
+            modelBuilder.Entity("Workflow.Models.Status", b =>
+                {
+                    b.Navigation("HrLeaveRequests");
+
+                    b.Navigation("ManagerLeaveRequests");
                 });
 #pragma warning restore 612, 618
         }

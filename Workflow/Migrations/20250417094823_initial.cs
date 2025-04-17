@@ -28,6 +28,33 @@ namespace Workflow.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Statuses",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Statuses", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "WorkflowInstanceInfos",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WorkflowInstanceInfos", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Applications",
                 columns: table => new
                 {
@@ -48,6 +75,37 @@ namespace Workflow.Migrations
                         principalTable: "ApplicationStatuses",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "LeaveRequests",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EmployeeName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ManagerDecisionId = table.Column<int>(type: "int", nullable: true),
+                    HrDecisionId = table.Column<int>(type: "int", nullable: true),
+                    WorkflowInstanceInfoId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LeaveRequests", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_LeaveRequests_Statuses_HrDecisionId",
+                        column: x => x.HrDecisionId,
+                        principalTable: "Statuses",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_LeaveRequests_Statuses_ManagerDecisionId",
+                        column: x => x.ManagerDecisionId,
+                        principalTable: "Statuses",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_LeaveRequests_WorkflowInstanceInfos_WorkflowInstanceInfoId",
+                        column: x => x.WorkflowInstanceInfoId,
+                        principalTable: "WorkflowInstanceInfos",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -101,6 +159,16 @@ namespace Workflow.Migrations
                     { 8, "Application canceled", "Canceled" }
                 });
 
+            migrationBuilder.InsertData(
+                table: "Statuses",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Pending" },
+                    { 2, "Approved" },
+                    { 3, "Rejected" }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_ApplicationHistories_ApplicationId",
                 table: "ApplicationHistories",
@@ -120,6 +188,21 @@ namespace Workflow.Migrations
                 name: "IX_Applications_StatusId",
                 table: "Applications",
                 column: "StatusId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LeaveRequests_HrDecisionId",
+                table: "LeaveRequests",
+                column: "HrDecisionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LeaveRequests_ManagerDecisionId",
+                table: "LeaveRequests",
+                column: "ManagerDecisionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LeaveRequests_WorkflowInstanceInfoId",
+                table: "LeaveRequests",
+                column: "WorkflowInstanceInfoId");
         }
 
         /// <inheritdoc />
@@ -129,7 +212,16 @@ namespace Workflow.Migrations
                 name: "ApplicationHistories");
 
             migrationBuilder.DropTable(
+                name: "LeaveRequests");
+
+            migrationBuilder.DropTable(
                 name: "Applications");
+
+            migrationBuilder.DropTable(
+                name: "Statuses");
+
+            migrationBuilder.DropTable(
+                name: "WorkflowInstanceInfos");
 
             migrationBuilder.DropTable(
                 name: "ApplicationStatuses");

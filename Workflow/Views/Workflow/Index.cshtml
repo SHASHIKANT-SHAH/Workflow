@@ -1,4 +1,5 @@
-﻿@model IEnumerable<LeaveRequest>
+﻿@model IEnumerable<Workflow.Models.LeaveRequest>
+
 @{
     ViewBag.Title = "Leave Approvals";
 }
@@ -18,6 +19,7 @@
             <th>Employee</th>
             <th>Manager Decision</th>
             <th>HR Decision</th>
+            <th>Workflow Status</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -26,10 +28,11 @@
         {
             <tr>
                 <td>@req.EmployeeName</td>
-                <td>@req.ManagerDecision</td>
-                <td>@req.HrDecision</td>
+                <td>@(req.ManagerDecision?.Name ?? "Pending")</td>
+                <td>@(req.HrDecision?.Name ?? "Pending")</td>
+                <td>@(req.WorkflowInstanceInfo?.Status ?? "InProgress")</td>
                 <td>
-                    @if (req.ManagerDecision == null)
+                    @if (req.ManagerDecision?.Name == "Pending")
                     {
                         <form asp-action="ManagerApprove" method="post" style="display:inline;">
                             <input type="hidden" name="id" value="@req.Id" />
@@ -37,7 +40,7 @@
                             <button name="decision" value="Rejected">Manager Reject</button>
                         </form>
                     }
-                    else if (req.HrDecision == null)
+                    else if (req.HrDecision?.Name == "Pending")
                     {
                         <form asp-action="HrApprove" method="post" style="display:inline;">
                             <input type="hidden" name="id" value="@req.Id" />
