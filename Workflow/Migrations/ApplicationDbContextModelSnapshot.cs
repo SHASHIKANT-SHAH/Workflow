@@ -182,8 +182,8 @@ namespace Workflow.Migrations
                     b.Property<int?>("ManagerDecisionId")
                         .HasColumnType("int");
 
-                    b.Property<string>("WorkflowInstanceInfoId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid?>("WorkflowInstanceInfoId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -232,8 +232,9 @@ namespace Workflow.Migrations
 
             modelBuilder.Entity("Workflow.Models.WorkflowInstanceInfo", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime2");

@@ -19,8 +19,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<IApplicationRepository, ApplicationRepository>();
 
 builder.Services.AddWorkflow();
-// Register Your Workflow
 builder.Services.AddTransient<NotifyStep>();
+builder.Services.AddTransient<PrintDecisionStep>();
+builder.Services.AddTransient<CreateWorkflowInstanceInfoStep>();
+builder.Services.AddTransient<UpdateWorkflowStatusStep>();
 builder.Services.AddTransient<IWorkflow<LeaveRequestData>, LeaveApprovalWorkflow>();
 
 // Add services to the container.

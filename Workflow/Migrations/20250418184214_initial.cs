@@ -44,7 +44,7 @@ namespace Workflow.Migrations
                 name: "WorkflowInstanceInfos",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false)
@@ -86,7 +86,7 @@ namespace Workflow.Migrations
                     EmployeeName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ManagerDecisionId = table.Column<int>(type: "int", nullable: true),
                     HrDecisionId = table.Column<int>(type: "int", nullable: true),
-                    WorkflowInstanceInfoId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    WorkflowInstanceInfoId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {

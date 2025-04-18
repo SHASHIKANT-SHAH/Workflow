@@ -32,94 +32,75 @@ namespace Workflow.Controllers
         [HttpPost]
         public async Task<IActionResult> StartWorkflow(string employeeName)
         {
-            // Create a new Workflow Instance
-            var workflowInstance = new WorkflowInstanceInfo
-            {
-                StartDate = DateTime.UtcNow,
-                Status = "InProgress"
-            };
-
-            _context.WorkflowInstanceInfos.Add(workflowInstance);
-            await _context.SaveChangesAsync();  // Save WorkflowInstanceInfo to generate its ID
-
-            // Now, create the LeaveRequest and associate it with the WorkflowInstanceInfo
-            var req = new LeaveRequest
+            var data = new LeaveRequestData
             {
                 EmployeeName = employeeName,
-                WorkflowInstanceInfoId = workflowInstance.Id,  // Link to WorkflowInstanceInfo
-                ManagerDecisionId = 1, // Pending
-                HrDecisionId = 1      // Pending
+                ManagerDecision = "Pending",
+                HrDecision = "Pending",
+                WorkflowInstanceId = Guid.NewGuid() // create ID beforehand
             };
 
-            _context.LeaveRequests.Add(req);
-            await _context.SaveChangesAsync();
+            // Start workflow and get workflowId
+            var workflowId = await _host.StartWorkflow("LeaveApprovalWorkflow", 1, data);
+
+            //var req = new LeaveRequest
+            //{
+            //    EmployeeName = employeeName,
+            //    WorkflowInstanceInfoId = Guid.Parse(workflowId),
+            //    ManagerDecisionId = 1, // Assuming 1 = Pending
+            //    HrDecisionId = 1
+            //};
+
+            //// Add leave request and save
+            //_context.LeaveRequests.Add(req);
+            //await _context.SaveChangesAsync();
 
             return RedirectToAction("Index");
         }
 
         [HttpPost]
-        public IActionResult ManagerApprove(int id, string decision)
+        public async Task<IActionResult> ManagerApprove(int id, string decision)
         {
-            var request = _context.LeaveRequests.Find(id);
+            var request = await _context.LeaveRequests
+                            .Include(r => r.WorkflowInstanceInfo)
+                            .FirstOrDefaultAsync(r => r.Id == id);
+
             if (request == null) return NotFound();
 
-            var status = _context.Statuses.FirstOrDefault(s => s.Name == decision);
-            if (status == null) return BadRequest("Invalid status");
+            var status = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == decision);
+            if (status == null) return BadRequest("Invalid decision");
 
-            // Update Manager Decision on the LeaveRequest
             request.ManagerDecisionId = status.Id;
-            _context.SaveChanges();
 
-            // Now update the WorkflowInstanceInfo for this workflow
-            var workflowInstance = _context.WorkflowInstanceInfos
-                .FirstOrDefault(wi => wi.Id == request.WorkflowInstanceInfoId);
-
-            if (workflowInstance != null)
-            {
-                // Update workflow status
-                workflowInstance.Status = decision == "Approved" ? "Manager Approved" : "Manager Rejected";
-                _context.SaveChanges();
-            }
+            // Update the decision and workflow
+            await _context.SaveChangesAsync();
+            await _host.PublishEvent("ManagerApproval", request.EmployeeName, decision);
 
             return RedirectToAction("Index");
         }
-
 
         [HttpPost]
-        public IActionResult HrApprove(int id, string decision)
+        public async Task<IActionResult> HrApprove(int id, string decision)
         {
-            var request = _context.LeaveRequests.Find(id);
+            var request = await _context.LeaveRequests
+                            .Include(r => r.WorkflowInstanceInfo)
+                            .Include(r => r.ManagerDecision)
+                            .FirstOrDefaultAsync(r => r.Id == id);
+
             if (request == null) return NotFound();
 
-            var status = _context.Statuses.FirstOrDefault(s => s.Name == decision);
-            if (status == null) return BadRequest("Invalid status");
+            var status = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == decision);
+            if (status == null) return BadRequest("Invalid decision");
 
-            // Update HR Decision on the LeaveRequest
             request.HrDecisionId = status.Id;
-            _context.SaveChanges();
 
-            // Now update the WorkflowInstanceInfo for this workflow
-            var workflowInstance = _context.WorkflowInstanceInfos
-                .FirstOrDefault(wi => wi.Id == request.WorkflowInstanceInfoId);
+            // Update the decision and workflow
+            await _context.SaveChangesAsync();
+            await _host.PublishEvent("HrApproval", request.EmployeeName, decision);
 
-            if (workflowInstance != null)
-            {
-                // If both Manager and HR have made decisions, mark workflow as completed
-                if (request.ManagerDecision != null && request.HrDecision != null)
-                {
-                    workflowInstance.Status = "Completed";  // Final status
-                    workflowInstance.EndDate = DateTime.UtcNow;  // Mark end date
-                    _context.SaveChanges();
-                }
-                else
-                {
-                    workflowInstance.Status = decision == "Approved" ? "HR Approved" : "HR Rejected";
-                    _context.SaveChanges();
-                }
-            }
+            // Workflow status update handled by workflow itself (inside UpdateWorkflowStatusStep)
 
             return RedirectToAction("Index");
         }
-
     }
 }

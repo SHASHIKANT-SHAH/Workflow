@@ -20,7 +20,7 @@
         public string? EmployeeName { get; set; }
         public int? ManagerDecisionId { get; set; }
         public int? HrDecisionId { get; set; }
-        public string? WorkflowInstanceInfoId { get; set; }
+        public Guid? WorkflowInstanceInfoId { get; set; }
 
         public Status? ManagerDecision { get; set; }
         public Status? HrDecision { get; set; }
@@ -30,7 +30,7 @@
 
     public class WorkflowInstanceInfo
     {
-        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public Guid Id { get; set; } 
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public string Status { get; set; } = "InProgress";
